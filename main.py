@@ -1,6 +1,7 @@
 import os
 import requests
 from dotenv import load_dotenv
+from datetime import datetime
 
 # Load API token from .env
 load_dotenv()
@@ -31,4 +32,21 @@ def get_teams():
     except requests.exceptions.RequestException as error:
         print("Connection error:", error)
         return []
+
+def find_team(team_name, teams):
+    """Find a team by its name."""
+
+    matches = []
+
+    for team in teams:
+        if team_name.lower() in team["name"].lower():
+            matches.append(team)
+
+    if not matches:
+        return None
+
+    # Prefer an exact name match
+    for team in matches:
+        if team_name.lower() == team["name"].lower():
+            return team
  
