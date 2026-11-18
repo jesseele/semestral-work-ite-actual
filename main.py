@@ -49,4 +49,30 @@ def find_team(team_name, teams):
     for team in matches:
         if team_name.lower() == team["name"].lower():
             return team
- 
+  # Show choices if multiple teams match
+    if len(matches) > 1:
+        print("\nMultiple teams found:")
+
+        for index, team in enumerate(matches, start=1):
+            print(f"{index}. {team['name']} (ID: {team['id']})")
+
+        try:
+            choice = int(input("\nSelect a team number: "))
+            if 1 <= choice <= len(matches):
+                return matches[choice - 1]
+        except ValueError:
+            pass
+
+        return None
+
+    return matches[0]
+
+def get_matches(team_id):
+    """Retrieve the team's latest finished matches."""
+
+    url = f"{BASE_URL}/teams/{team_id}/matches"
+
+    params = {
+        "status": "FINISHED",
+        "limit": 10
+    }
