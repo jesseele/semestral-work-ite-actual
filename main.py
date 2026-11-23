@@ -1,7 +1,7 @@
 
 from src.api import get_teams, get_matches, API_TOKEN
-from src.team import find_team
-from src.display import display_matches
+from src.find_team import find_team
+from src.display_matches import display_matches
 
 
 def main():
