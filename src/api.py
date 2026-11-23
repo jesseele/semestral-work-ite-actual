@@ -28,7 +28,18 @@ def get_teams():
         )
 
         if response.status_code == 200:
-            return response.json().get("teams", [])
+            teams = response.json().get("teams", [])
+
+            print("\nTeams retrieved from API:")
+            print("Number of teams:", len(teams))
+
+            for team in teams:
+                print(team["name"])
+
+            return teams
+    
+
+             
 
         print("API Error:", response.status_code)
         print(response.text)
