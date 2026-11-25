@@ -1,68 +1,63 @@
 
-
 import os
 import requests
 from dotenv import load_dotenv
 
-# Load API key from the .env file in the project root
+# Load API token from .env
 load_dotenv()
 
-API_KEY = os.getenv("API_FOOTBALL_KEY")
+API_TOKEN = os.getenv("FOOTBALL_API_TOKEN")
 
-BASE_URL = "https://v3.football.api-sports.io"
+BASE_URL = "https://api.football-data.org/v4"
 
 headers = {
-    "x-apisports-key": API_KEY
+    "X-Auth-Token": API_TOKEN
 }
 
 
-def search_teams(team_name):
-    """Search for football teams by name."""
+def get_teams():
+    """Retrieve available football teams from the API."""
 
     url = f"{BASE_URL}/teams"
-
-    params = {
-        "search": team_name
-    }
 
     try:
         response = requests.get(
             url,
             headers=headers,
-            params=params,
             timeout=15
         )
 
-        data = response.json()
-
         if response.status_code == 200:
-            if data.get("errors"):
-                print("API Error:", data["errors"])
-                return []
+            teams = response.json().get("teams", [])
 
-            return data.get("response", [])
+            print("\nTeams retrieved from API:")
+            print("Number of teams:", len(teams))
+
+            for team in teams:
+                print(team["name"])
+
+            return teams
+    
+
+             
 
         print("API Error:", response.status_code)
-        print(data.get("errors", response.text))
+        print(response.text)
         return []
 
     except requests.exceptions.RequestException as error:
         print("Connection error:", error)
-        return []
-
-    except ValueError:
-        print("Error: API returned invalid JSON.")
         return []
 
 
 def get_matches(team_id):
     """Retrieve the team's 10 most recent finished matches."""
 
-    url = f"{BASE_URL}/fixtures"
+    url = f"{BASE_URL}/teams/{team_id}/matches"
 
     params = {
-        "team": team_id,
-        "last": 20
+        "status": "FINISHED",
+        "limit": 10
     }
 
     try:
@@ -73,40 +68,22 @@ def get_matches(team_id):
             timeout=15
         )
 
-        data = response.json()
-
         if response.status_code == 200:
-            if data.get("errors"):
-                print("API Error:", data["errors"])
-                return []
 
-            fixtures = data.get("response", [])
+            matches = response.json().get("matches", [])
 
-            # Keep only completed matches
-            finished_statuses = ["FT", "AET", "PEN"]
-
-            matches = [
-                fixture for fixture in fixtures
-                if fixture["fixture"]["status"]["short"]
-                in finished_statuses
-            ]
-
-            # Sort newest first
+            # Sort matches by date, newest first
             matches.sort(
-                key=lambda match: match["fixture"]["date"],
+                key=lambda match: match["utcDate"],
                 reverse=True
             )
 
             return matches[:10]
 
         print("API Error:", response.status_code)
-        print(data.get("errors", response.text))
+        print(response.text)
         return []
 
     except requests.exceptions.RequestException as error:
         print("Connection error:", error)
-        return []
-
-    except ValueError:
-        print("Error: API returned invalid JSON.")
         return []

@@ -1,37 +1,38 @@
 
 def find_team(team_name, teams):
-    """Select the requested team from API search results."""
+    """Find a football team by its name."""
 
-    if not teams:
-        print("No teams found.")
+    matches = []
+
+    for team in teams:
+        if team_name.lower() in team["name"].lower():
+            matches.append(team)
+
+    if not matches:
         return None
 
-    # First, look for an exact name match
-    for item in teams:
-        team = item["team"]
-
+    # Prefer an exact name match
+    for team in matches:
         if team_name.lower() == team["name"].lower():
             return team
 
-    # If no exact match, show the available teams
-    print("\nTeams found:")
+    # Show choices if multiple teams match
+    if len(matches) > 1:
 
-    for index, item in enumerate(teams, start=1):
-        team = item["team"]
-        country = team.get("country", "Unknown")
+        print("\nMultiple teams found:")
 
-        print(f"{index}. {team['name']} ({country})")
+        for index, team in enumerate(matches, start=1):
+            print(f"{index}. {team['name']} (ID: {team['id']})")
 
-    # Ask user to choose a team
-    try:
-        choice = int(input("\nSelect a team number: "))
+        try:
+            choice = int(input("\nSelect a team number: "))
 
-        if 1 <= choice <= len(teams):
-            return teams[choice - 1]["team"]
+            if 1 <= choice <= len(matches):
+                return matches[choice - 1]
 
-    except ValueError:
-        pass
+        except ValueError:
+            pass
 
-    print("Invalid selection.")
-    return None
+        return None
 
+    return matches[0]
