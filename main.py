@@ -1,5 +1,5 @@
 
-from src.api import get_teams, get_matches, API_TOKEN
+from src.api import search_teams, get_matches, API_KEY
 from src.find_team import find_team
 from src.display_matches import display_matches
 
@@ -11,34 +11,37 @@ def main():
     print("   FOOTBALL RESULTS FINDER")
     print("==============================")
 
-    # Check API token
-    if not API_TOKEN:
-        print("API token missing! Check your .env file.")
+    # Check API key
+    if not API_KEY:
+        print("API key missing! Check your .env file.")
         return
 
     # Ask user for a team
-    team_name = input("\nEnter a football team: ").strip()
+    team_name = input(
+        "\nEnter a football team: "
+    ).strip()
 
-    if not team_name:
-        print("Please enter a team name.")
+    if len(team_name) < 3:
+        print("Please enter at least 3 characters.")
         return
 
-    # Retrieve teams from API
-    teams = get_teams()
+    # Search for the team directly
+    teams = search_teams(team_name)
 
     if not teams:
+        print("\nNo teams found. Try another name.")
         return
 
-    # Find selected team
+    # Select the team
     team = find_team(team_name, teams)
 
     if team is None:
-        print("\nTeam not found or no team selected.")
+        print("\nNo team selected.")
         return
 
     print(f"\nSelected team: {team['name']}")
 
-    # Retrieve team's recent matches
+    # Retrieve recent matches
     matches = get_matches(team["id"])
 
     # Display results
@@ -47,3 +50,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
