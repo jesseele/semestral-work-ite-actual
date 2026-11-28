@@ -78,7 +78,7 @@ def get_matches(team_id):
                 reverse=True
             )
 
-            return matches[:10]
+            return matches[:5]
 
         print("API Error:", response.status_code)
         print(response.text)
